@@ -1,0 +1,13 @@
+package com.nhnacademy.shoppingmallfront;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ShoppingmallFrontApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ShoppingmallFrontApplication.class, args);
+	}
+
+}
