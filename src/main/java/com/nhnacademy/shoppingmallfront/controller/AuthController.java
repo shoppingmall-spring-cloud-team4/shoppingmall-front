@@ -2,7 +2,9 @@ package com.nhnacademy.shoppingmallfront.controller;
 
 import com.nhnacademy.shoppingmallfront.dto.LoginRequest;
 import com.nhnacademy.shoppingmallfront.dto.UserResponseDto;
+import com.nhnacademy.shoppingmallfront.interceptor.TokenCheckInterceptor;
 import com.nhnacademy.shoppingmallfront.util.CookieUtil;
+import com.nhnacademy.shoppingmallfront.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
+import static com.nhnacademy.shoppingmallfront.util.JwtUtil.EXP_HEADER;
+
 
 @Slf4j
 @Controller
@@ -33,16 +37,19 @@ public class AuthController {
     @PostMapping("/login")
     public String doLogin(LoginRequest loginRequest, HttpServletResponse response) {
         log.info("{}", loginRequest);
+
         ResponseEntity<Void> exchange = restTemplate.postForEntity(
                 "http://localhost:8000/login",
                 loginRequest,
                 Void.class
         );
-        Cookie cookie = new Cookie("auth", exchange.getHeaders().get("Authorization").get(0).substring(7)+"."+exchange.getHeaders().get("X-Expire").get(0));
-        cookie.setMaxAge(259200);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+
+        String accessToken = exchange.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0).substring(7);
+        Long expireTime = Long.parseLong(exchange.getHeaders().get(EXP_HEADER).get(0));
+
+        Cookie cookie = JwtUtil.makeJwtCookie(accessToken, expireTime);
+
+
         response.addCookie(cookie);
         return "redirect:/";
     }

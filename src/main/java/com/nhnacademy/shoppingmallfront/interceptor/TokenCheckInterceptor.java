@@ -16,22 +16,25 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.nhnacademy.shoppingmallfront.util.JwtUtil.JWT_COOKIE;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class TokenCheckInterceptor implements HandlerInterceptor {
     private final AuthAdaptor authAdaptor;
 
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Cookie jwtCookie = CookieUtil.findCookie("auth");
+        Cookie jwtCookie = CookieUtil.findCookie(JWT_COOKIE);
+
         String cookieValue = Objects.requireNonNull(jwtCookie).getValue();
         String exp = cookieValue.split("\\.")[3];
         String accessToken = jwtCookie.getValue().substring(0, getTokenLength(cookieValue, exp));
 
         Long validTime = getValidTime(exp);
-        log.info("{}",validTime);
-        log.info("{}",new Date().getTime());
+
         if (validTime <= 0) {
             ResponseEntity<Void> result = authAdaptor.getRefreshToken(accessToken);
             return tokenReissue(request, response, jwtCookie, result);
@@ -53,17 +56,21 @@ public class TokenCheckInterceptor implements HandlerInterceptor {
                                         HttpServletResponse response,
                                         Cookie jwtCookie, ResponseEntity<Void> result) {
 
-        String reissueToken = Objects.requireNonNull(result.getHeaders().get("Authorization").get(0).substring("Bearer ".length()));
-        Long expireTime = Long.parseLong(
-                Objects.requireNonNull(
-                        result.getHeaders().get("X-Expire")).get(0));
-        log.info("re : {}", reissueToken);
-        log.info("time : {}", expireTime);
+        String reissueToken = getReissueToken(result);
+        Long expireTime = getExpireTime(result);
+
         setCookie(response, jwtCookie, reissueToken, expireTime);
         requestContainAccessToken(request, reissueToken);
         return true;
     }
 
+    private static String getReissueToken(ResponseEntity<Void> result) {
+        return Objects.requireNonNull(result.getHeaders().get("Authorization").get(0).substring("Bearer ".length()));
+    }
+
+    private static Long getExpireTime(ResponseEntity<Void> result) {
+        return Long.parseLong(Objects.requireNonNull(result.getHeaders().get("X-Expire")).get(0));
+    }
     private static void setCookie(HttpServletResponse response, Cookie jwtCookie,
                                   String newAccessToken, Long expireTime) {
         jwtCookie.setValue(newAccessToken + "." + expireTime);
