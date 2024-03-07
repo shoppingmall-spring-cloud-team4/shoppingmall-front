@@ -20,6 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 
 @Slf4j
@@ -37,7 +38,7 @@ public class AuthController {
                 loginRequest,
                 Void.class
         );
-        Cookie cookie = new Cookie("auth", exchange.getHeaders().get("Authorization").get(0).substring(7));
+        Cookie cookie = new Cookie("auth", exchange.getHeaders().get("Authorization").get(0).substring(7)+"."+exchange.getHeaders().get("X-Expire").get(0));
         cookie.setMaxAge(259200);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -52,10 +53,9 @@ public class AuthController {
                 (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
 
         HttpHeaders headers = new HttpHeaders();
+        log.info(">->->->{}",request.getAttribute(HttpHeaders.AUTHORIZATION));
+        headers.add(HttpHeaders.AUTHORIZATION,request.getAttribute(HttpHeaders.AUTHORIZATION).toString());
         Cookie cookie = CookieUtil.findCookie("auth");
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + cookie.getValue());
-        headers.add("withCredentials","true");
-        log.info("{}", cookie.getValue());
         ResponseEntity<UserResponseDto> exchange = restTemplate.exchange(
                 "http://localhost:8000/api/account/users",
                 HttpMethod.GET,

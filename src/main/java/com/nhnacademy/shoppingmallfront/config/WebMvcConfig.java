@@ -24,13 +24,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addViewController("/").setViewName("login");
     }
 
-    @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder
-                .setReadTimeout(Duration.ofSeconds(3L))
-                .setConnectTimeout(Duration.ofSeconds(3L))
-                .build();
-    }
+
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -38,6 +32,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/static/**")
                 .excludePathPatterns("/login")
-                .excludePathPatterns("/error");
+                .excludePathPatterns("/error")
+                .excludePathPatterns("/");
     }
 }
