@@ -33,6 +33,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/static/**")
                 .excludePathPatterns("/login")
                 .excludePathPatterns("/error")
+                .excludePathPatterns("")
                 .excludePathPatterns("/");
     }
 }

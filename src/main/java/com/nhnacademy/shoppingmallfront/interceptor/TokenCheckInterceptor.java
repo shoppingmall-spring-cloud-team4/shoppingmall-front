@@ -28,7 +28,6 @@ public class TokenCheckInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Cookie jwtCookie = CookieUtil.findCookie(JWT_COOKIE);
-
         String cookieValue = Objects.requireNonNull(jwtCookie).getValue();
         String exp = cookieValue.split("\\.")[3];
         String accessToken = jwtCookie.getValue().substring(0, getTokenLength(cookieValue, exp));

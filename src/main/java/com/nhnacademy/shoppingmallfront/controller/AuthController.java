@@ -1,8 +1,7 @@
 package com.nhnacademy.shoppingmallfront.controller;
 
+import com.nhnacademy.shoppingmallfront.dto.AuthUserDto;
 import com.nhnacademy.shoppingmallfront.dto.LoginRequest;
-import com.nhnacademy.shoppingmallfront.dto.UserResponseDto;
-import com.nhnacademy.shoppingmallfront.interceptor.TokenCheckInterceptor;
 import com.nhnacademy.shoppingmallfront.util.CookieUtil;
 import com.nhnacademy.shoppingmallfront.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Objects;
 
 import static com.nhnacademy.shoppingmallfront.util.JwtUtil.EXP_HEADER;
 
@@ -36,8 +34,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public String doLogin(LoginRequest loginRequest, HttpServletResponse response) {
-        log.info("{}", loginRequest);
-
         ResponseEntity<Void> exchange = restTemplate.postForEntity(
                 "http://localhost:8000/login",
                 loginRequest,
@@ -60,17 +56,16 @@ public class AuthController {
                 (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
 
         HttpHeaders headers = new HttpHeaders();
-        log.info(">->->->{}",request.getAttribute(HttpHeaders.AUTHORIZATION));
-        headers.add(HttpHeaders.AUTHORIZATION,request.getAttribute(HttpHeaders.AUTHORIZATION).toString());
+        log.info(">->->->{}", request.getAttribute(HttpHeaders.AUTHORIZATION));
+        headers.add(HttpHeaders.AUTHORIZATION, request.getAttribute(HttpHeaders.AUTHORIZATION).toString());
         Cookie cookie = CookieUtil.findCookie("auth");
-        ResponseEntity<UserResponseDto> exchange = restTemplate.exchange(
+        ResponseEntity<AuthUserDto> exchange = restTemplate.exchange(
                 "http://localhost:8000/api/account/users",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
                 }
         );
-
 
         log.info("{}", exchange.getBody());
         log.info("{}", exchange.getHeaders());

@@ -1,0 +1,25 @@
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div class="container-fluid d-grid gap-3 align-items-center">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+            <li><a th:href="@{/}" class="nav-link px-2 text-secondary">Home</a></li>
+            <li sec:authorize="isAuthenticated()">
+                <a th:href="@{/mypage.do}" class="nav-link px-2 text-white">마이페이지</a>
+            </li>
+            <li sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <a th:href="@{/admin/adminPage.do}" class="nav-link px-2 text-white">관리자페이지</a>
+            </li>
+        </ul>
+
+        <form action="/index.do" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+            <input type="search" class="form-control form-control-dark" placeholder="Search..."
+                   aria-label="Search" name="search">
+        </form>
+
+    </div>
+</div>
+
+</html>
